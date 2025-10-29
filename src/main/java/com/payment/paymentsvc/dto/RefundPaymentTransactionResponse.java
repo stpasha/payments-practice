@@ -1,6 +1,6 @@
 package com.payment.paymentsvc.dto;
 
-import com.payment.paymentsvc.enums.TransactionStatus;
+import com.payment.paymentsvc.enums.PaymentStatus;
 
-public record RefundPaymentTransactionResponse(Long refundId, TransactionStatus status, String message) {
+public record RefundPaymentTransactionResponse(Long refundId, PaymentStatus status, String message) {
 }

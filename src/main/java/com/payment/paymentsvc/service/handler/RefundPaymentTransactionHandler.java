@@ -1,6 +1,5 @@
 package com.payment.paymentsvc.service.handler;
 
-import com.payment.paymentsvc.dto.CreatePaymentTransactionResponse;
 import com.payment.paymentsvc.dto.RefundPaymentTransactionRequest;
 import com.payment.paymentsvc.dto.RefundPaymentTransactionResponse;
 import com.payment.paymentsvc.enums.CommandType;

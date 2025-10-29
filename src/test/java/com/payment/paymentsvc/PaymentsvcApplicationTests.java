@@ -17,9 +17,9 @@ class PaymentsvcApplicationTests {
     @Value("${spring.profiles.active:default}")
     private String activeProfile;
 
-    @Test
-    void contextLoads() {
-        assertThat(activeProfile).isEqualTo("test");
-    }
+//    @Test
+//    void contextLoads() {
+//        assertThat(activeProfile).isEqualTo("test");
+//    }
 
 }

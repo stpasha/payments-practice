@@ -5,7 +5,7 @@ import com.payment.paymentsvc.dto.CreatePaymentTransactionResponse;
 import com.payment.paymentsvc.dto.RefundPaymentTransactionRequest;
 import com.payment.paymentsvc.dto.RefundPaymentTransactionResponse;
 import com.payment.paymentsvc.enums.PaymentStatus;
-import com.payment.paymentsvc.enums.TransactionStatus;
+import com.payment.paymentsvc.enums.PaymentStatus;
 import com.payment.paymentsvc.mapper.PaymentTransactionMapper;
 import com.payment.paymentsvc.model.BankAccount;
 import com.payment.paymentsvc.model.PaymentTransaction;
@@ -14,16 +14,17 @@ import com.payment.paymentsvc.repository.BankAccountRepository;
 import com.payment.paymentsvc.repository.PaymentTransactionRepository;
 import com.payment.paymentsvc.repository.RefundRepository;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import jakarta.validation.ValidationException;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentTransactionService {
 
     private final BankAccountRepository bankAccountRepository;
@@ -55,6 +56,7 @@ public class PaymentTransactionService {
         transaction.setSourceBankAccount(sourceAccount);
         transaction.setDestBankAccount(destinationAccount);
         transaction.setStatus(PaymentStatus.CREATED);
+        transaction.setExecutedAt(LocalDateTime.now());
         paymentTransactionRepository.save(transaction);
 
         return paymentTransactionMapper.toResponse(transaction);
@@ -73,16 +75,11 @@ public class PaymentTransactionService {
                 .reason(request.reason())
                 .status(PaymentStatus.REFUNDED).build();
         Refund saved = refundRepository.save(refund);
-        return new RefundPaymentTransactionResponse(saved.getId(), TransactionStatus.SUCCESSFUL, "");
+        return new RefundPaymentTransactionResponse(saved.getId(), PaymentStatus.PROCESSED, "");
 
     }
 
     public Optional<PaymentTransaction> findById(Long id) {
-        Optional<PaymentTransaction> paymentTransaction = paymentTransactionRepository.findById(id);
-        paymentTransaction.ifPresent(item -> {
-            item.getDestBankAccount();
-            item.getSourceBankAccount();
-        });
-        return paymentTransaction;
+        return paymentTransactionRepository.findByIdWithAccountsAndRefunds(id);
     }
 }

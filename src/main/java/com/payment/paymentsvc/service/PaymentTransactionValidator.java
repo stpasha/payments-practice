@@ -7,7 +7,7 @@ import com.payment.paymentsvc.model.PaymentTransaction;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentTransactionValidator {
 
     private final Validator validator;
@@ -55,7 +55,7 @@ public class PaymentTransactionValidator {
         Optional<PaymentTransaction> paymentTransactionOptional = paymentTransactionService.findById(refundPaymentTransactionRequest.transactionId());
         PaymentTransaction paymentTransaction = paymentTransactionOptional.orElseThrow(() -> new ValidationException("Transaction not found " + refundPaymentTransactionRequest));
         BigDecimal totalAfterRefund = paymentTransaction.getRefunds().stream().map(refund -> refund.getRefundedAmount()).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);;
-        if (totalAfterRefund.compareTo(paymentTransaction.getAmount()) > 0) {
+        if (totalAfterRefund.compareTo(paymentTransaction.getAmount()) >= 0) {
             throw new ValidationException("Refund amount exceeds original transaction amount");
         }
     }

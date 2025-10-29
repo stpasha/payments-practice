@@ -1,7 +1,7 @@
 package com.payment.paymentsvc.producer;
 
 import com.payment.paymentsvc.enums.CommandType;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -10,12 +10,12 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PaymentTransactionProducer {
     public static final String HEADER_NAME = "command";
-    @Value("spring.kafka.topic.result")
+    @Value("${spring.kafka.topic.result}")
     private String resultTopic;
-    @Value("spring.kafka.topic.source")
+    @Value("${spring.kafka.topic.source}")
     private String sourceTopic;
     private final KafkaTemplate<String,String> kafkaTemplate;
 

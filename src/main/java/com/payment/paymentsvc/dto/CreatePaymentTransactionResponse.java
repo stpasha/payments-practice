@@ -1,8 +1,8 @@
 package com.payment.paymentsvc.dto;
 
-import com.payment.paymentsvc.enums.TransactionStatus;
+import com.payment.paymentsvc.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 
-public record CreatePaymentTransactionResponse(Long paymentTransactionId, TransactionStatus transactionStatus, String errorMessage, LocalDateTime executedAt) {
+public record CreatePaymentTransactionResponse(Long paymentTransactionId, PaymentStatus transactionStatus, String errorMessage, LocalDateTime executedAt) {
 }

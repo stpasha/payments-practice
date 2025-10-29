@@ -7,10 +7,10 @@ import com.payment.paymentsvc.producer.PaymentTransactionProducer;
 import com.payment.paymentsvc.service.PaymentTransactionService;
 import com.payment.paymentsvc.service.PaymentTransactionValidator;
 import com.payment.paymentsvc.util.JsonConverter;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class CreatePaymentTransactionHandler implements PaymentTransactionCommandHandler {
 

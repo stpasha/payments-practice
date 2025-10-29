@@ -23,6 +23,7 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+    default-schema: ${SPRING_DATASOURCE_SCHEMA}
   kafka:
     topic:
       result: payment-command-result

@@ -12,7 +12,7 @@
 
         </preConditions>
         <createTable tableName="bank_account" schemaName="payment_schema">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="customer_id" type="INTEGER">
@@ -43,7 +43,7 @@
             </not>
         </preConditions>
         <createTable tableName="payment_transaction" schemaName="payment_schema">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="amount" type="DECIMAL(20,2)">
@@ -90,10 +90,10 @@
             </not>
         </preConditions>
         <createTable tableName="refund" schemaName="payment_schema">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="payment_transaction_id" type="INTEGER">
+            <column name="payment_transaction_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="refunded_amount" type="DECIMAL(20,2)">
@@ -130,7 +130,7 @@
                     <indexExists schemaName="payment_schema" indexName="customer_id_bank_account"/>
                 </not>
                 <not>
-                    <indexExists schemaName="payment_schema" indexName="number_bank_account"/>
+                    <indexExists schemaName="payment_schema" indexName="uk_bank_account_number"/>
                 </not>
                 <not>
                     <indexExists schemaName="payment_schema" indexName="src_bank_account_id_payment_transaction"/>
@@ -143,24 +143,29 @@
                 </not>
             </and>
         </preConditions>
-        <createIndex tableName="bank_account" schemaName="payment_schema" indexName="customer_id_bank_account">
+        <createIndex tableName="bank_account"  schemaName="payment_schema" indexName="customer_id_bank_account">
             <column name="customer_id"/>
         </createIndex>
-        <createIndex tableName="bank_account" indexName="number_bank_account">
-            <column name="number"/>
-        </createIndex>
-        <createIndex tableName="payment_transaction" indexName="src_bank_account_id_payment_transaction">
+        <addUniqueConstraint
+                tableName="bank_account"
+                schemaName="payment_schema"
+                columnNames="number"
+                constraintName="uk_bank_account_number"/>
+        <createIndex tableName="payment_transaction" schemaName="payment_schema" indexName="src_bank_account_id_payment_transaction">
             <column name="src_bank_account_id"/>
         </createIndex>
-        <createIndex tableName="payment_transaction" indexName="dst_bank_account_id_payment_transaction">
+        <createIndex tableName="payment_transaction" schemaName="payment_schema" indexName="dst_bank_account_id_payment_transaction">
             <column name="dst_bank_account_id"/>
         </createIndex>
-        <createIndex tableName="refund" indexName="payment_transaction_id_refund">
+        <createIndex tableName="refund" schemaName="payment_schema" indexName="payment_transaction_id_refund">
             <column name="payment_transaction_id"/>
         </createIndex>
         <rollback>
             <dropIndex tableName="bank_account" indexName="customer_id_bank_account"/>
-            <dropIndex tableName="bank_account" indexName="number_bank_account"/>
+            <dropUniqueConstraint
+                    tableName="bank_account"
+                    constraintName="uk_bank_account_number"
+                    schemaName="payment_schema"/>
             <dropIndex tableName="payment_transaction" indexName="src_bank_account_id_payment_transaction"/>
             <dropIndex tableName="payment_transaction" indexName="dst_bank_account_id_payment_transaction"/>
             <dropIndex tableName="refund" indexName="payment_transaction_id_refund"/>
