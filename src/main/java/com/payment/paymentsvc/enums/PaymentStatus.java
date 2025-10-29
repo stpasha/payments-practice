@@ -1,6 +1,6 @@
 package com.payment.paymentsvc.enums;
 
-public enum Status {
+public enum PaymentStatus {
     CREATED,
     PROCESSED,
     REFUNDED

@@ -1,0 +1,68 @@
+services:
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_SCHEMA: ${SPRING_DATASOURCE_SCHEMA}
+      PAYMENT_SERVICE_PORT: ${PAYMENT_SERVICE_PORT}
+      PAYMENT_SERVICE_DEBUG_PORT: ${PAYMENT_SERVICE_DEBUG_PORT}
+    ports:
+      - "${PAYMENT_SERVICE_PORT}:${PAYMENT_SERVICE_PORT}"
+      - "${PAYMENT_SERVICE_DEBUG_PORT}:${PAYMENT_SERVICE_DEBUG_PORT}"
+    depends_on:
+      services-db:
+        condition: service_healthy
+
+  services-db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: ${SERVICES_DB_NAME}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+#      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "${SERVICES_DB_EXTERNAL_PORT}:${SERVICES_DB_INTERNAL_PORT}"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${SPRING_DATASOURCE_USERNAME}", "-d", "${SERVICES_DB_NAME}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      services-db:
+        condition: service_healthy
+    ports:
+      - 8090:8080
+
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+volumes:
+  kafka_data:
+  postgres_data:

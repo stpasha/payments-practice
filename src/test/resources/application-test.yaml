@@ -1,0 +1,9 @@
+spring:
+  liquibase:
+    enabled: false
+  application:
+    name: paymentsvc
+  jpa:
+    enabled: false
+    datasource:
+      url: none

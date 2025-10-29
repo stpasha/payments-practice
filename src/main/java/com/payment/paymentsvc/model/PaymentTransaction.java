@@ -1,7 +1,7 @@
 package com.payment.paymentsvc.model;
 
 import com.payment.paymentsvc.enums.Currency;
-import com.payment.paymentsvc.enums.Status;
+import com.payment.paymentsvc.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +28,7 @@ public class PaymentTransaction extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PaymentStatus status;
 
     @Column(name = "error_message")
     private String errorMessage;

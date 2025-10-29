@@ -1,10 +1,8 @@
 package com.payment.paymentsvc.model;
 
-import com.payment.paymentsvc.enums.Status;
+import com.payment.paymentsvc.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -15,6 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Refund extends BaseEntity {
 
     @ManyToOne(optional = false)
@@ -26,7 +26,7 @@ public class Refund extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PaymentStatus status;
 
     @Column
     private String reason;
