@@ -6,7 +6,6 @@ import com.payment.paymentsvc.enums.CommandType;
 import com.payment.paymentsvc.producer.PaymentTransactionProducer;
 import com.payment.paymentsvc.util.JsonConverter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
