@@ -23,7 +23,6 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    default-schema: ${SPRING_DATASOURCE_SCHEMA}
   kafka:
     topic:
       result: payment-command-result
@@ -34,7 +33,7 @@ spring:
         transaction.state.log.replication.factor: 1
         transaction.state.log.min.isr: 1
     bootstrap-servers:
-      - kafka:9092
+      - ${KAFKA_BOOTSTRAP_SERVER}
     topics:
       - name: payment-command
         partitions: 1

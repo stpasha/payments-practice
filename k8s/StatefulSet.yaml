@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: services-db
+  name: db-stateful-set
 spec:
   serviceName: postgresql
   replicas: 1
@@ -17,8 +17,12 @@ spec:
         - name: postgresql
           image: postgres:17
           env:
+            - name: POSTGRES_USER
+              value: "user"
+            - name: POSTGRES_DB
+              value: "common_database"
             - name: POSTGRES_PASSWORD
-              value: "postgres"
+              value: "password"
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
           ports:
@@ -26,6 +30,16 @@ spec:
           volumeMounts:
             - name: postgresql-data
               mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "pg_isready -U postgres"
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 1
   volumeClaimTemplates:
     - metadata:
         name: postgresql-data

@@ -16,7 +16,7 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
     @Bean
-    public ConsumerFactory<String, String> consumerFactory(@Value("kafka:9092") final String bootStrapServer) {
+    public ConsumerFactory<String, String> consumerFactory(@Value("${KAFKA_BOOTSTRAP_SERVER}") final String bootStrapServer) {
         final Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -35,7 +35,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ProducerFactory<String, String> producerFactory(@Value("kafka:9092") String bootstrapServer) {
+    public ProducerFactory<String, String> producerFactory(@Value("${KAFKA_BOOTSTRAP_SERVER}") String bootstrapServer) {
         final Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

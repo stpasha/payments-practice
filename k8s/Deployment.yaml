@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: payment-service:0.0.1
+          image: payment-service:0.0.2
           ports:
             - containerPort: 8080
           envFrom:
@@ -22,3 +22,15 @@ spec:
                 name: payment-service-config
             - secretRef:
                 name: payment-service-secret
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
