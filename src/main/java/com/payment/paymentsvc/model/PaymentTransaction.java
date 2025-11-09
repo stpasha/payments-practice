@@ -41,12 +41,12 @@ public class PaymentTransaction extends BaseEntity {
     private LocalDateTime executedAt;
 
     @ManyToOne
-    @JoinColumn(name = "src_bank_account_id")
-    private BankAccount sourceBankAccount;
+    @JoinColumn(name = "src_currency_account_id")
+    private CurrencyAccount sourceCurrencyAccount;
 
     @ManyToOne
-    @JoinColumn(name = "dst_bank_account_id")
-    private BankAccount destBankAccount;
+    @JoinColumn(name = "dst_currency_account_id")
+    private CurrencyAccount destCurrencyAccount;
 
     @OneToMany(mappedBy = "paymentTransaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Refund> refunds;

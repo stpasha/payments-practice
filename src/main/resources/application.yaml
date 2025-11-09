@@ -19,7 +19,7 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   liquibase:
-    change-log: classpath:/db/changelog/master-changelog.xml
+    change-log: classpath:/db/changelog/
     url: ${SPRING_DATASOURCE_URL}
     user: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
@@ -43,3 +43,6 @@ spring:
         replicationFactor: 1
   server:
     port: ${PAYMENT_SERVICE_PORT}
+  client:
+    rates:
+      token: ccdd2b69e5994c4cab85026bb82498b7

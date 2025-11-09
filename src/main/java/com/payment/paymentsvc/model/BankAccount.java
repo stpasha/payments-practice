@@ -23,16 +23,4 @@ public class BankAccount extends BaseEntity {
     @Column(name = "customer_id")
     private Integer customerId;
 
-    @Column(nullable = false)
-    private BigDecimal balance;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private Currency currency;
-
-    @OneToMany(mappedBy = "sourceBankAccount")
-    private List<PaymentTransaction> sourceTransactions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "destBankAccount")
-    private List<PaymentTransaction> destTransactions = new ArrayList<>();
 }

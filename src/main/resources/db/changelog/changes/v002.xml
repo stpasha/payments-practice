@@ -1,0 +1,93 @@
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="currency_account" schemaName="payment_schema"/>
+            </not>
+
+        </preConditions>
+        <createTable tableName="currency_account" schemaName="payment_schema">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="DECIMAL(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="currency_account" baseColumnNames="account_id"
+                                 baseTableSchemaName="payment_schema"
+                                 referencedTableSchemaName="payment_schema"
+                                 constraintName="fk_account_id_bank_account"
+                                 referencedTableName="bank_account"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="src_currency_account_id"
+                                 constraintName="fk_src_currency_account_id_payment_transaction" referencedTableName="currency_account"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+        <addForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="dst_currency_account_id"
+                                 constraintName="fk_dst_currency_account_id_payment_transaction" referencedTableName="currency_account"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+        <rollback>
+            <dropTable tableName="currency_account" schemaName="payment_schema"/>
+            <dropForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="src_currency_account_id"
+                                      constraintName="fk_src_currency_account_id_payment_transaction" referencedTableName="currency_account"
+                                      referencedColumnNames="id"
+                                      baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+            <dropForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="dst_currency_account_id"
+                                      constraintName="fk_dst_currency_account_id_payment_transaction" referencedTableName="currency_account"
+                                      referencedColumnNames="id"
+                                      baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2" author="nomatter">
+        <dropNotNullConstraint tableName="bank_account" columnName="currency" schemaName="payment_schema" columnDataType="INTEGER"/>
+        <dropNotNullConstraint tableName="bank_account" columnName="balance" schemaName="payment_schema" columnDataType="DECIMAL(10,2)"/>
+        <dropNotNullConstraint tableName="payment_transaction" columnName="currency" schemaName="payment_schema" columnDataType="INTEGER"/>
+        <dropNotNullConstraint tableName="payment_transaction" columnName="amount" schemaName="payment_schema" columnDataType="DECIMAL(20,2)"/>
+        <dropNotNullConstraint tableName="payment_transaction" columnName="src_bank_account_id" schemaName="payment_schema" columnDataType="BIGINT"/>
+        <dropNotNullConstraint tableName="payment_transaction" columnName="dst_bank_account_id" schemaName="payment_schema" columnDataType="BIGINT"/>
+        <dropForeignKeyConstraint baseTableName="payment_transaction" baseTableSchemaName="payment_schema" constraintName="fk_src_bank_account_id_payment_transaction"/>
+        <dropForeignKeyConstraint baseTableName="payment_transaction" baseTableSchemaName="payment_schema" constraintName="fk_dst_bank_account_id_payment_transaction"/>
+        <rollback>
+            <addNotNullConstraint tableName="bank_account" columnName="currency" schemaName="payment_schema" columnDataType="INTEGER"/>
+            <addNotNullConstraint tableName="bank_account" columnName="balance" schemaName="payment_schema" columnDataType="DECIMAL(10,2)"/>
+            <addNotNullConstraint tableName="payment_transaction" columnName="currency" schemaName="payment_schema" columnDataType="INTEGER"/>
+            <addNotNullConstraint tableName="payment_transaction" columnName="amount" schemaName="payment_schema" columnDataType="DECIMAL(20,2)"/>
+            <addNotNullConstraint tableName="payment_transaction" columnName="src_bank_account_id" schemaName="payment_schema" columnDataType="BIGINT"/>
+            <addNotNullConstraint tableName="payment_transaction" columnName="dst_bank_account_id" schemaName="payment_schema" columnDataType="BIGINT"/>
+            <addForeignKeyConstraint baseTableName="payment_transaction" baseTableSchemaName="payment_schema"
+                                     baseColumnNames="src_bank_account_id"
+                                     constraintName="fk_src_bank_account_id_payment_transaction"
+                                     referencedTableName="bank_account" referencedColumnNames="id"
+                                     referencedTableSchemaName="payment_schema"/>
+            <addForeignKeyConstraint baseTableName="payment_transaction" baseTableSchemaName="payment_schema"
+                                     baseColumnNames="dst_bank_account_id"
+                                     constraintName="fk_dst_bank_account_id_payment_transaction"
+                                     referencedTableName="bank_account" referencedColumnNames="id"
+                                     referencedTableSchemaName="payment_schema"/>
+        </rollback>
+    </changeSet>
+
+
+<!--    <changeSet id="3" author="nomatter">-->
+<!--        -->
+<!--    </changeSet>-->
+
+</databaseChangeLog>

@@ -15,8 +15,8 @@ public interface PaymentTransactionMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "executedAt", ignore = true)
     @Mapping(target = "refunds", ignore = true)
-    @Mapping(target = "sourceBankAccount", ignore = true)
-    @Mapping(target = "destBankAccount", ignore = true)
+    @Mapping(target = "sourceCurrencyAccount", ignore = true)
+    @Mapping(target = "destCurrencyAccount", ignore = true)
     PaymentTransaction toEntity(CreatePaymentTransactionRequest request);
 
     @Mapping(target = "paymentTransactionId", source = "id")

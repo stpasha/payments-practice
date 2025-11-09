@@ -1,0 +1,193 @@
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="0" author="nomatter">
+        <sql>CREATE SCHEMA IF NOT EXISTS payment_schema;</sql>
+    </changeSet>
+
+    <changeSet id="1" author="nomatter">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bank_account" schemaName="payment_schema"/>
+            </not>
+
+        </preConditions>
+        <createTable tableName="bank_account" schemaName="payment_schema">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="VARCHAR(20)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="balance" type="DECIMAL(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="bank_account" schemaName="payment_schema"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="2" author="nomatter">
+        <preConditions>
+            <not>
+                <tableExists tableName="payment_transaction" schemaName="payment_schema"/>
+            </not>
+        </preConditions>
+        <createTable tableName="payment_transaction" schemaName="payment_schema">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="src_bank_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="dst_bank_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="src_bank_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="dst_bank_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="src_currency_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="dst_currency_account_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="error_message" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="executed_at" type="TIMESTAMP"/>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="src_bank_account_id"
+                                 constraintName="fk_src_bank_account_id_payment_transaction" referencedTableName="bank_account"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+        <addForeignKeyConstraint baseTableName="payment_transaction" baseColumnNames="dst_bank_account_id"
+                                 constraintName="fk_dst_bank_account_id_payment_transaction" referencedTableName="bank_account"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="payment_schema" referencedTableSchemaName="payment_schema"/>
+        <rollback>
+            <dropTable tableName="payment_transaction" schemaName="payment_schema"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="3" author="nomatter">
+        <preConditions>
+            <not>
+                <tableExists tableName="refund" schemaName="payment_schema"/>
+            </not>
+        </preConditions>
+        <createTable tableName="refund" schemaName="payment_schema">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="payment_transaction_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refunded_amount" type="DECIMAL(20,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="refund"
+                                 baseColumnNames="payment_transaction_id"
+                                 constraintName="fk_payment_transaction_id_refund"
+                                 referencedTableName="payment_transaction"
+                                 referencedColumnNames="id"
+                                 referencedTableSchemaName="payment_schema"
+                                 baseTableSchemaName="payment_schema"
+        />
+        <rollback>
+            <dropTable tableName="refund" schemaName="payment_schema"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="4" author="nomatter">
+        <preConditions>
+            <and>
+                <not>
+                    <indexExists schemaName="payment_schema" indexName="customer_id_bank_account"/>
+                </not>
+                <not>
+                    <indexExists schemaName="payment_schema" indexName="uk_bank_account_number"/>
+                </not>
+                <not>
+                    <indexExists schemaName="payment_schema" indexName="src_bank_account_id_payment_transaction"/>
+                </not>
+                <not>
+                    <indexExists schemaName="payment_schema" indexName="dst_bank_account_id_payment_transaction"/>
+                </not>
+                <not>
+                    <indexExists schemaName="payment_schema" indexName="payment_transaction_id_refund"/>
+                </not>
+            </and>
+        </preConditions>
+        <createIndex tableName="bank_account"  schemaName="payment_schema" indexName="customer_id_bank_account">
+            <column name="customer_id"/>
+        </createIndex>
+        <addUniqueConstraint
+                tableName="bank_account"
+                schemaName="payment_schema"
+                columnNames="number"
+                constraintName="uk_bank_account_number"/>
+        <createIndex tableName="payment_transaction" schemaName="payment_schema" indexName="src_bank_account_id_payment_transaction">
+            <column name="src_bank_account_id"/>
+        </createIndex>
+        <createIndex tableName="payment_transaction" schemaName="payment_schema" indexName="dst_bank_account_id_payment_transaction">
+            <column name="dst_bank_account_id"/>
+        </createIndex>
+        <createIndex tableName="refund" schemaName="payment_schema" indexName="payment_transaction_id_refund">
+            <column name="payment_transaction_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="bank_account" indexName="customer_id_bank_account"/>
+            <dropUniqueConstraint
+                    tableName="bank_account"
+                    constraintName="uk_bank_account_number"
+                    schemaName="payment_schema"/>
+            <dropIndex tableName="payment_transaction" indexName="src_bank_account_id_payment_transaction"/>
+            <dropIndex tableName="payment_transaction" indexName="dst_bank_account_id_payment_transaction"/>
+            <dropIndex tableName="refund" indexName="payment_transaction_id_refund"/>
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>
