@@ -1,21 +1,22 @@
 package com.payment.paymentsvc.client;
 
 import com.payment.paymentsvc.dto.RateDTO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.Map;
+
 
 @Component
-@RequiredArgsConstructor
 public class RatesClient {
     public static final String APIKEY = "apikey";
     private final RestClient ratesClient;
-    @Value("${spring.client.rates.token}")
     private final String token;
 
+    public RatesClient(RestClient ratesClient,@Value("${spring.client.rates.token}") String token) {
+        this.ratesClient = ratesClient;
+        this.token = token;
+    }
 
     public RateDTO getRatesData(String symbols) {
         return ratesClient.get()
