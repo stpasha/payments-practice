@@ -33,11 +33,11 @@ public class PaymentTransactionService {
 
     @Transactional
     public CreatePaymentTransactionResponse createPayment(CreatePaymentTransactionRequest request) {
-        CurrencyAccount sourceAccount = currBankAccountRepository.findById(request.sourceBankAccountId())
+        CurrencyAccount sourceAccount = currBankAccountRepository.findById(request.sourceAccountId())
                 .orElseThrow(() -> new ValidationException(
-                        "Source bank account not found: " + request.sourceBankAccountId()));
+                        "Source bank account not found: " + request.sourceAccountId()));
 
-        CurrencyAccount destinationAccount = currBankAccountRepository.findById(request.destinationBankAccountId())
+        CurrencyAccount destinationAccount = currBankAccountRepository.findById(request.destinationAccountId())
                 .orElse(null);
         String from = request.currency().name();
         String sourceCur = sourceAccount.getCurrency().name();

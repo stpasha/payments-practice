@@ -7,6 +7,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaAdmin;
 
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Configuration
 @ConfigurationProperties("spring.kafka")
 public class KafkaTopicConfig {
+    public static final String SPRING_KAFKA_BOOTSTRAP_SERVERS = "spring.kafka.bootstrap-servers";
     private List<TopicConfig> topics;
 
     public List<TopicConfig> getTopics() {
@@ -28,9 +30,9 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public KafkaAdmin kafkaAdmin() {
+    public KafkaAdmin kafkaAdmin(Environment env) {
         Map<String, Object> configs = new HashMap<>();
-        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty(SPRING_KAFKA_BOOTSTRAP_SERVERS));
         configs.put("offset.topic.replication.factor", "1");
         configs.put("transaction.state.log.replication.factor", "1");
         configs.put("transaction.state.log.min.isr", "1");

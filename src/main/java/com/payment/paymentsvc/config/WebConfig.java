@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class WebConfig {
     @Bean
-    RestClient ratesClient() {
+    RestClient ratesRestClient() {
         return RestClient.builder().baseUrl("https://api.currencyfreaks.com/").build();
     }
 }

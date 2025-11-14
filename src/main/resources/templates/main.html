@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Create Payment Transaction</title>
+    <style>
+        :root{--bg:#f7fafc;--card:#ffffff;--accent:#2563eb;--err:#dc2626;--muted:#6b7280}
+        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:var(--bg); margin:0; padding:32px}
+        .card{max-width:720px;margin:0 auto;background:var(--card);border-radius:12px;padding:24px;box-shadow:0 6px 20px rgba(2,6,23,0.06)}
+        h1{margin:0 0 12px;font-size:20px}
+        form{display:grid;gap:12px}
+        .row{display:flex;gap:12px}
+        .col{flex:1}
+        label{display:block;font-weight:600;margin-bottom:6px}
+        input,select,textarea{width:100%;padding:10px;border:1px solid #e6e9ee;border-radius:8px;font-size:14px}
+        textarea{min-height:96px;resize:vertical}
+        .help{font-size:13px;color:var(--muted);margin-top:4px}
+        .errors{color:var(--err);font-size:13px}
+        .actions{display:flex;gap:8px;align-items:center;margin-top:6px}
+        button{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:0;cursor:pointer}
+        button[disabled]{opacity:.6;cursor:not-allowed}
+        .secondary{background:#eef2ff;color:var(--accent);border:1px solid #e0e7ff}
+        pre{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    </style>
+</head>
+<body>
+<div class="card" role="main" aria-labelledby="title">
+    <h1 id="title">Создать платёжную транзакцию</h1>
+
+    <form id="paymentForm" novalidate>
+        <div class="row">
+            <div class="col">
+                <label for="sourceAccountId">ID счета-отправителя <span aria-hidden="true" style="color:var(--err)">*</span></label>
+                <input id="sourceAccountId" name="sourceAccountId" type="number" step="1" min="1" required
+                       aria-describedby="sourceHelp" placeholder="12345" />
+                <div id="sourceHelp" class="help">Обязательное. Целое положительное число.</div>
+            </div>
+
+            <div class="col">
+                <label for="destinationAccountId">ID счета-получателя</label>
+                <input id="destinationAccountId" name="destinationAccountId" type="number" step="1" min="1"
+                       placeholder="12346" />
+                <div class="help">Необязательное. Оставьте пустым для внутренних сценариев.</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label for="amount">Сумма <span aria-hidden="true" style="color:var(--err)">*</span></label>
+                <input id="amount" name="amount" type="number" inputmode="decimal" step="0.01" min="0.01" required
+                       placeholder="100.00" aria-describedby="amountHelp" />
+                <div id="amountHelp" class="help">Обязательное. Дробное число, две цифры после запятой.</div>
+            </div>
+
+            <div class="col">
+                <label for="currency">Валюта <span aria-hidden="true" style="color:var(--err)">*</span></label>
+                <select id="currency" name="currency" required aria-describedby="currencyHelp">
+                    <!-- Примеры значений. Лучше генерировать сервером, чтобы синхронизировать enum Currency -->
+                    <option value="">— выберите валюту —</option>
+                    <option value="USD">USD — Доллар США</option>
+                    <option value="EUR">EUR — Евро</option>
+                    <option value="RUB">RUB — Российский рубль</option>
+                    <option value="GBP">GBP — Фунт стерлингов</option>
+                </select>
+                <div id="currencyHelp" class="help">Обязательно. Можно динамически наполнить значениями enum Currency.</div>
+            </div>
+        </div>
+
+        <div>
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" placeholder="Назначение платежа или комментарий (опционально)"></textarea>
+            <div class="help">Необязательно. Максимум 500 символов (валидация на бэке).</div>
+        </div>
+
+        <div class="errors" id="formErrors" role="alert" aria-live="polite"></div>
+
+        <div class="actions">
+            <button type="submit" id="submitBtn">Отправить</button>
+            <button type="button" id="resetBtn" class="secondary">Сброс</button>
+            <span id="status" class="help" style="margin-left:8px"></span>
+        </div>
+    </form>
+
+    <h3 style="margin-top:18px">Пример JSON, который будет отправлен</h3>
+    <pre id="exampleJson">—</pre>
+</div>
+
+<script>
+    const form = document.getElementById('paymentForm');
+    const errorsEl = document.getElementById('formErrors');
+    const exampleJson = document.getElementById('exampleJson');
+    const status = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function buildPayload(formData) {
+      const payload = {
+        sourceAccountId: formData.get('sourceAccountId') ? Number(formData.get('sourceAccountId')) : null,
+        destinationAccountId: formData.get('destinationAccountId') ? Number(formData.get('destinationAccountId')) : null,
+        amount: formData.get('amount') ? formData.get('amount') : null,
+        currency: formData.get('currency') || null,
+        description: formData.get('description') || null
+      };
+      // Убрать null-значения, если нужно
+      Object.keys(payload).forEach(k => payload[k] === null && delete payload[k]);
+      return payload;
+    }
+
+    // Показать пример JSON при изменениях
+    form.addEventListener('input', () => {
+      const payload = buildPayload(new FormData(form));
+      exampleJson.textContent = JSON.stringify(payload, null, 2);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorsEl.textContent = '';
+      status.textContent = '';
+      submitBtn.disabled = true;
+
+      // HTML5 validation
+      if (!form.reportValidity()) {
+        submitBtn.disabled = false;
+        return;
+      }
+
+      const payload = buildPayload(new FormData(form));
+
+      // Проверим минимальные правила на клиенте
+      const clientErrors = [];
+      if (!payload.sourceAccountId) clientErrors.push('sourceAccountId обязателен');
+      if (!payload.amount) clientErrors.push('amount обязателен');
+      if (!payload.currency) clientErrors.push('currency обязана быть выбрана');
+
+      if (clientErrors.length) {
+        errorsEl.textContent = clientErrors.join('; ');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      try {
+        status.textContent = 'Отправка...';
+        // отправка JSON на бэкенд (замени URL)
+        const res = await fetch('/api/payments', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`${res.status} ${res.statusText} — ${text}`);
+        }
+        const body = await res.json();
+        status.textContent = 'Успешно: ' + (body.id ? `id=${body.id}` : 'OK');
+        form.reset();
+        exampleJson.textContent = '—';
+      } catch (err) {
+        errorsEl.textContent = 'Ошибка при отправке: ' + err.message;
+        status.textContent = '';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      exampleJson.textContent = '—';
+      errorsEl.textContent = '';
+      status.textContent = '';
+    });
+
+    // инициализируем пример (если JS отключен, всё равно работает стандартная отправка)
+    exampleJson.textContent = '{}';
+</script>
+</body>
+</html>

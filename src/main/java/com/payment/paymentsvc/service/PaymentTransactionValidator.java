@@ -2,9 +2,6 @@ package com.payment.paymentsvc.service;
 
 import com.payment.paymentsvc.dto.CreatePaymentTransactionRequest;
 import com.payment.paymentsvc.dto.RefundPaymentTransactionRequest;
-import com.payment.paymentsvc.model.BankAccount;
-import com.payment.paymentsvc.model.CurrencyAccount;
-import com.payment.paymentsvc.model.PaymentTransaction;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
@@ -12,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Component
